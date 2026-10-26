@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Freshness Classification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="page">
+        <header class="page-header">
+            <span class="eyebrow">Freshness checker</span>
+            <h1>Food Freshness Classification</h1>
+            <p>Upload a fruit image to identify its type and freshness.</p>
+        </header>
+
+        <section class="panel" aria-labelledby="upload-heading">
+            <h2 id="upload-heading">Choose a fruit image</h2>
+            <form method="post" enctype="multipart/form-data">
+                <label class="upload-area" for="image">
+                    <span class="upload-icon" aria-hidden="true">＋</span>
+                    <span class="upload-label">Select an image from your device</span>
+                    <span class="upload-help">JPG, JPEG, or PNG</span>
+                </label>
+                <input
+                    id="image"
+                    name="image"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                    required
+                >
+                <div class="preview-wrap" id="preview-wrap" hidden>
+                    <img id="image-preview" alt="Preview of the selected fruit">
+                </div>
+                <button type="submit">Predict freshness</button>
+            </form>
+
+            {% if error %}
+                <p class="error-message" role="alert">{{ error }}</p>
+            {% endif %}
+        </section>
+
+        {% if result %}
+            <section class="panel result-card" aria-labelledby="result-heading">
+                <div class="result-copy">
+                    <span class="eyebrow">Your result</span>
+                    <h2 id="result-heading">{{ result.freshness }} {{ result.food }}</h2>
+                    <dl class="result-details">
+                        <div>
+                            <dt>Food</dt>
+                            <dd>{{ result.food }}</dd>
+                        </div>
+                        <div>
+                            <dt>Freshness</dt>
+                            <dd>{{ result.freshness }}</dd>
+                        </div>
+                        <div>
+                            <dt>Confidence</dt>
+                            <dd>{{ "%.2f"|format(result.confidence) }}%</dd>
+                        </div>
+                    </dl>
+                </div>
+                <img
+                    class="result-image"
+                    src="{{ result.image_url }}"
+                    alt="Uploaded {{ result.food|lower }} image"
+                >
+            </section>
+        {% endif %}
+    </main>
+
+    <script>
+        const imageInput = document.getElementById("image");
+        const previewWrap = document.getElementById("preview-wrap");
+        const imagePreview = document.getElementById("image-preview");
+
+        imageInput.addEventListener("change", () => {
+            const selectedImage = imageInput.files[0];
+            if (selectedImage) {
+                imagePreview.src = URL.createObjectURL(selectedImage);
+                previewWrap.hidden = false;
+            } else {
+                imagePreview.removeAttribute("src");
+                previewWrap.hidden = true;
+            }
+        });
+    </script>
+</body>
+</html>
